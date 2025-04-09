@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 import { Capsule } from "../types";
 import { LockKeyhole, Mail } from "lucide-react";
 import { motion } from "framer-motion";
-import sablierImg from "../assets/sablier.png";
+import sablierImg from "../assets/hourglass.png";
 
 interface CapsuleItemProps {
   capsule: Capsule;
