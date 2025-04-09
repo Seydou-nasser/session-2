@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import { Capsule } from "../types";
 import { LockKeyhole, Mail } from "lucide-react";
 import { motion } from "framer-motion";
+import sablierImg from "../assets/sablier.png";
 
 interface CapsuleItemProps {
   capsule: Capsule;
@@ -58,7 +59,24 @@ const CapsuleItem = ({
     return `${diffSeconds} seconds restantes`;
   };
 
+  // Calculer un coefficient de vitesse d'animation basé sur le temps restant
+  const getAnimationSpeed = (date: string): number => {
+    const now = dayjs();
+    const unlockDate = dayjs(date);
+
+    if (now.isAfter(unlockDate)) return 0; // Arrêté si déjà débloqué
+
+    const totalDays = unlockDate.diff(now, "day");
+
+    if (totalDays > 30) return 4; // Rotation lente si beaucoup de temps
+    if (totalDays > 7) return 3;
+    if (totalDays > 1) return 2;
+
+    return 1; // Rotation rapide si proche de la date
+  };
+
   const unlockable = isUnlockable(capsule.unlockDate);
+  const animationSpeed = getAnimationSpeed(capsule.unlockDate);
 
   return (
     <motion.div
@@ -100,7 +118,17 @@ const CapsuleItem = ({
       </div>
       {!isOpen && !unlockable && (
         <div className="text-sm text-gray-500">
-          <p className="font-medium text-amber-600 mt-1">
+          <p className="font-medium text-amber-600 mt-1 flex items-center">
+            <motion.img
+              src={sablierImg}
+              alt="Sablier"
+              className="w-6 h-6 mr-2"
+              animate={{ rotate: 360 }}
+              transition={{
+                repeat: Infinity,
+                duration: animationSpeed,
+              }}
+            />
             {calculateTimeRemaining(capsule.unlockDate)}
           </p>
         </div>
