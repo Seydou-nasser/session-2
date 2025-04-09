@@ -1,0 +1,12 @@
+/* Style de base pour notre application */
+#root {
+  width: 100%;
+  min-height: 100vh;
+  padding: 0;
+  margin: 0;
+  background: #f0d8aa;
+  background-image: url('assets/sablier.png');
+  background-position: 50% 80%;
+  background-repeat: no-repeat;
+  background-size: auto 100%;
+}
