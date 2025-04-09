@@ -21,7 +21,12 @@ const CapsuleList = ({
   useEffect(() => {
     // Mise à jour toutes les 40 secondes
     const interval = setInterval(() => {
-      setTick((tick) => tick + 1); // Incrémente l'état pour forcer un re-rendu
+      setTick((tick) => {
+        if (tick > 40) {
+          return 0; // Réinitialise le tick
+        }
+        return tick + 1; // Incrémente l'état pour forcer un re-rendu
+      });
     }, 1000); // 1000ms = 1s
 
     // Nettoyage de l'intervalle à la destruction du composant

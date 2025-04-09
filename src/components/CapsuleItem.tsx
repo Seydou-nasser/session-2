@@ -1,7 +1,7 @@
 import { useState } from "react";
 import dayjs from "dayjs";
 import { Capsule } from "../types";
-import { LockKeyhole, Mail } from "lucide-react";
+import { LockKeyhole, Mail, FileIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import sablierImg from "../assets/hourglass.png";
 
@@ -17,6 +17,8 @@ const CapsuleItem = ({
   onDeleteCapsule,
 }: CapsuleItemProps) => {
   const [isOpen, setIsOpen] = useState(capsule.opened);
+  const [mediaError, setMediaError] = useState(false);
+
   const isUnlockable = (date: string): boolean => {
     return dayjs().isAfter(dayjs(date));
   };
@@ -26,6 +28,11 @@ const CapsuleItem = ({
       setIsOpen(true);
       onUpdateCapsule({ ...capsule, opened: true });
     }
+  };
+
+  const handleMediaError = () => {
+    console.log("Erreur de chargement du média", capsule.mediaPath);
+    setMediaError(true);
   };
 
   const calculateTimeRemaining = (date: string): string => {
@@ -77,6 +84,12 @@ const CapsuleItem = ({
 
   const unlockable = isUnlockable(capsule.unlockDate);
   const animationSpeed = getAnimationSpeed(capsule.unlockDate);
+
+  // Récupérer le nom du fichier à partir du chemin complet
+  const getFileName = (path: string | null | undefined) => {
+    if (!path) return "";
+    return path.split("\\").pop() || path.split("/").pop() || path;
+  };
 
   return (
     <motion.div
@@ -131,21 +144,70 @@ const CapsuleItem = ({
             />
             {calculateTimeRemaining(capsule.unlockDate)}
           </p>
+          {capsule.mediaType && (
+            <div className="flex items-center gap-1 mt-2 text-gray-500">
+              <FileIcon className="size-4" />
+              <span>
+                Contient une {capsule.mediaType === "image" ? "image" : "vidéo"}
+              </span>
+            </div>
+          )}
         </div>
       )}
 
       {isOpen ? (
         <motion.div
-          className="mt-2 min"
+          className="mt-2"
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: "auto" }}
           transition={{ duration: 0.5 }}
         >
           <div className="text-[#785b36]">
             <h4 className="font-medium">Message: {capsule.message}</h4>
+
+            {capsule.mediaPath && capsule.mediaType && (
+              <motion.div
+                className="mt-4 p-2 bg-white/50 rounded-lg shadow-sm"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <h5 className="font-medium mb-2 text-sm text-gray-700">
+                  Média joint:
+                </h5>
+                {mediaError ? (
+                  <div className="bg-red-50 text-red-600 p-3 rounded text-sm">
+                    <p>
+                      Impossible d'accéder au média. Le fichier a peut-être été
+                      déplacé ou supprimé.
+                    </p>
+                    <p className="mt-1 text-xs">
+                      {getFileName(capsule.mediaPath)}
+                    </p>
+                  </div>
+                ) : capsule.mediaType === "image" ? (
+                  <img
+                    src={capsule.mediaPath || ""}
+                    alt="Image de la capsule"
+                    className="max-w-full rounded mx-auto max-h-64 object-contain"
+                    onError={handleMediaError}
+                  />
+                ) : (
+                  <video
+                    src={capsule.mediaPath || ""}
+                    controls
+                    className="w-full rounded max-h-64"
+                    onError={handleMediaError}
+                  />
+                )}
+                <p className="text-xs text-gray-500 mt-1 truncate">
+                  {getFileName(capsule.mediaPath)}
+                </p>
+              </motion.div>
+            )}
           </div>
 
-          <div className="flex justify-end">
+          <div className="flex justify-end mt-4">
             <motion.button
               onClick={() => onDeleteCapsule(capsule.id)}
               className="btn-danger text-sm"
@@ -169,7 +231,7 @@ const CapsuleItem = ({
             </motion.button>
           ) : (
             <button className="opacity-50 cursor-not-allowed" disabled>
-              Pas encore disponible
+              C'est pour bientot !
             </button>
           )}
         </div>

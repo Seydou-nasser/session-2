@@ -5,4 +5,6 @@ export interface Capsule {
   unlockDate: string;
   createdAt: string;
   opened: boolean;
+  mediaType?: "image" | "video" | null; // Type du média (image ou vidéo)
+  mediaPath?: string | null; // Chemin d'accès au fichier média
 }
